@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <title>松田研究室</title>
+</head>
+
+<body onload="main()">
+    <canvas id="canvas"> </canvas>
+    <script>
+        // shake.html 2015 (c) matsuda
+        var THRETHOLD = 25.0; // どれくらいの加速度でふらすか?
+        var TIME = 20; // 30秒でタイムアウト
+        var LIMIT = 3; // この回数以上は参加できない
+        var KEEPALIVE_INTERVAL = 60000;
+        var SHAKE_INTERVAL = 100;
+
+        var score = 0; // 得点
+        var start = false; // ゲーム開始
+        var prev_y = 0; // 一つ前の加速度
+        var count = 1; // 参加した回数
+        var id = "A"; // 端末のID
+        var EXPIRE = 3; // Cookieは3日まで有効
+        var keepalive_count = 30;
+
+        var webSocket = null; // webSocketが接続しているか？
+
+        function sendMessage(type, value) {
+            webSocket.send(JSON.stringify({
+                type: type,
+                value: value
+            }));
+        }
+
+        function main() {
+            var canvas = document.getElementById("canvas");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            var context = canvas.getContext("2d");
+
+            // cookieの設定(3回以上できなくする)
+            if (checkCoolie()) {
+                return;
+            }
+
+            // update(canvas, context); // 表示を更新
+
+            function dummyShake() {
+                setTimeout(function shakeMe() {
+                    var acceleration = {
+                        x: 0,
+                        y: Math.random() * 100 - 50,
+                        z: 0
+                    };
+
+                    var now = new Date();
+                    console.log('[' + now.getMinutes() + ':' + now.getSeconds() + '.' + now.getMilliseconds() + '] dummy shake: ' + acceleration.y);
+
+                    var event = new CustomEvent('devicemotion', {
+                        detail: {
+                            acceleration: acceleration
+                        }
+                    });
+                    document.dispatchEvent(event);
+
+                    if (start)
+                        setTimeout(shakeMe, Math.random() * SHAKE_INTERVAL);
+                }, Math.random() * SHAKE_INTERVAL);
+            }
+
+            function gameStart() {
+                console.log('clicked');
+                if (!start) {
+                    start = true;
+                    dummyShake();
+                    setTimeout(function () {
+                        console.log('finished');
+                        start = false;
+                        if (sendMessage) {
+                            sendMessage('score', score);
+                            sendMessage('game_end', '');
+                        }
+                        update(canvas, context); // 表示を更新
+                        setCookie("count", LIMIT + "", EXPIRE); // クッキーを書き込む
+                    }, 1000 * TIME);
+                }
+                update(canvas, context); // 表示を更新
+            }
+
+            // スマホが振られた場合の処理
+            window.addEventListener("devicemotion", function (e) {
+                    if (!start) return;
+                    var cur_y = 'detail' in e ? e.detail.acceleration.y : e.acceleration.y;
+                    if (cur_y * prev_y > 0) return; // 同じ方向の場合
+                    if (Math.abs(cur_y - prev_y) < THRETHOLD) return; // 振り速度が小さい
+                    prev_y = cur_y;
+                    score++;
+                    update(canvas, context); // 表示を更新
+                    if (sendMessage) {
+                        sendMessage('score', score);
+                    }
+                },
+                true);
+
+            // WebSocketサーバーのURLを生成
+
+            var url = window.location;
+            if (url.host !== '') {
+                var ws_url = url.protocol === 'https:' ? 'wss:' : 'ws:' + '//' + url.host;
+            } else {
+                var ws_url = 'ws://shake.elasticbeanstalk.com/';
+            }
+            // var ws_url = 'ws://shake.elasticbeanstalk.com/'; // テスト用に強制的に書き換え
+            console.log('WebSocket Host: ' + ws_url);
+
+            // WebSocketサーバーに接続
+            webSocket = new WebSocket(ws_url);
+            webSocket.onopen = function () {
+                // クライアントの種類（スマホかスコア表示用PC）を送信
+                sendMessage('join', 'shaker');
+
+                webSocket.onmessage = function (e) {
+                    console.log(e);
+                    var message = JSON.parse(e.data);
+                    switch (message.type) {
+                    case 'accept':
+                        id = message.value;
+                        console.log('Connection accepted. Name is ' + id);
+                        update(canvas, context); // 表示を更新
+                        break;
+                    case 'reject':
+                        if (message.value === 'OVERCONNECT') {
+                            alert("ごめんなさい、満員です。次の回に参加してください");
+                        } else if (message.value === 'GAMING') {
+                            alert("ただ今ゲーム中です。次の回に参加してください");
+                        } else {
+                            alert("現在参加でません。係員にお問い合わせください");
+                        }
+                        break;
+                    case 'start':
+                        // サーバーからのゲームスタート指示
+                        // スマホをタッチする代わりにゲームをスタートさせるコードをここに書くこと
+                        console.log('Game start!');
+                        gameStart();
+                        break;
+                    default:
+                        console.log('Unknown message type: ', e.data);
+                    }
+                };
+            };
+
+            webSocket.onclose = function () {
+                alert('ゲーム終了です。ありがとうございました。');
+                setCookie("count", LIMIT + "", EXPIRE); // クッキーを書き込む
+            };
+            
+            setTimeout(function keepalive () {
+                if (!start && keepalive_count-- > 0) {
+                    sendMessage('iamalive', 0);
+                    setTimeout(keepalive, KEEPALIVE_INTERVAL);
+                }
+            }, KEEPALIVE_INTERVAL);
+        }
+
+        function update(canvas, context) { // 画面の更新処理
+            // 色を変える
+            if (score % 10 === Math.floor(Math.random() * 10)) {
+                context.fillStyle = "rgba(0, 0, 0, 255)";
+            } else {
+                context.fillStyle = "hsla(" + (45 + (90.0 * (score / 64.0))) + ", 100%, 50%, 1.0)";
+            }
+            context.fillRect(0, 0, canvas.width, canvas.height); // 画面を消す
+
+            //  var font_y = 1200; 3000
+            var font_y = Math.floor(canvas.height * 0.55);
+            var font_x_100 = Math.floor(canvas.width * 1 / 200); // 100の位の数字の位置
+            var font_x_10 = Math.floor(canvas.width * 1 / 20); // 10の位の数字の位置
+            var font_x_1 = Math.floor(canvas.width * 1 / 2); // 10の位の数字の位置
+
+            // 文字を表示する
+            context.fillStyle = "rgba(255, 255, 255, 255)";
+            context.font = "700pt Arial"; // context.fillRect(0, 0, 100, 500);
+
+            if (10 <= score && score < 100) {
+                context.fillText(Math.floor(score / 10), font_x_10, font_y);
+            } else if (100 <= score) {
+                // 100の位の数字の描画
+                context.fillText(Math.floor(score / 100), font_x_100, font_y);
+                context.fillStyle = "rgba(255, 0, 0, 255)";
+                // 10の位の数字の描画
+                context.fillText(Math.floor((score % 100) / 10), font_x_10 + 250, font_y - 100);
+                context.fillStyle = "rgba(255, 255, 255, 255)";
+            }
+            // 1の位の数字の描画
+            context.fillText(score % 10, font_x_1, font_y + 200);
+
+            context.font = "100pt Arial";
+            context.fillText(id, 20, 120); // IDの表示
+            context.font = "40pt Arial";
+            font_y += 200;
+            context.fillText("松田研究室", 100, font_y);
+            context.font = "30pt Arial";
+            font_y += 60;
+            context.fillText("featuring with 鈴木祥子, 石川真生子, 由谷哲夫", 100, font_y);
+            font_y += 50;
+            context.fillText("大妻女子大学 社会情報学部 情報デザイン専攻", 100, font_y);
+            font_y += 60;
+            if (start) {
+                context.fillText("TAP to STOP", 100, font_y);
+            } else {
+                context.fillStyle = "rgba(0, 0, 255, 255)";
+                // context.fillText("TAP to START!", 100, font_y);
+            }
+            // context.fillText(window.innerWidth + " " + window.devicePixelRatio, 100, font_y + 100);
+            // context.fillText(window.innerHeight + " " + window.devicePixelRatio, 100, font_y + 140);
+            // context.fillText("クッキー: " + count, 100, font_y + 180);
+        }
+
+        function getCookie(c_name) {
+            if (document.cookie.length > 0) {
+                var st = document.cookie.indexOf(c_name + "="); // クッキーの値を取り出す
+                if (st != -1) {
+                    st = st + c_name.length + 1;
+                    var ed = document.cookie.indexOf(";", st);
+                    if (ed == -1) ed = document.cookie.length;
+                    return unescape(document.cookie.substring(st, ed)); // 値をデコードして返す
+                }
+            }
+            return "";
+        }
+
+        function setCookie(c_name, value, expiredays) {
+            var path = location.pathname; // pathの指定
+            var extime = new Date().getTime(); // 有効期限の日付
+            var cltime = new Date(extime + (60 * 60 * 24 * 1000 * expiredays));
+            var exdate = cltime.toUTCString();
+            // クッキーに保存する文字列を生成
+            var s = "";
+            s += c_name + "=" + escape(value); // 値はエンコードしておく
+            s += "; path=" + path;
+            s += "; expires=" + exdate + "; ";
+
+            document.cookie = s; // クッキーに保存
+        }
+
+        function checkCoolie() { // 3回目の場合は trueを返す
+            if (getCookie("count")) {
+                count = eval(getCookie("count"));
+                count++;
+            }
+            setCookie("count", count + "", EXPIRE);
+            if (count >= LIMIT) {
+                alert("ごめんなさい。もう遊べません。また来てね");
+                setCookie("count", "0", EXPIRE); // ★あとで削除する
+                return true;
+            }
+            return false;
+        }
+
+        //  canvas.style.width = window.innerWidth + 'px';
+        //  canvas.style.height = window.innerHeight + 'px';
+        //  canvas.width = window.innerWidth * window.devicePixelRatio;
+        //  canvas.height = window.innerHeight * window.devicePixelRatio;
+    </script>
+</body>
+
+</html>
