@@ -9,10 +9,21 @@
     </title>
 
     <!-- <link href='http://fonts.googleapis.com/css?family=Indie+Flower' rel='stylesheet' type='text/css'> -->
+    <style>
+        .talk_text {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            border: solid;
+            border-width: 1px;
+            border-color: #d0d0d0;
+            box-shadow: 0 10px 6px -6px #777;
+            cursor: pointer;
+        }
+    </style>
     <script>
         document.addEventListener('click', function (e) {
             var target = e.srcElement || e.target;
-            var msg = target.innerText;
+            var msg = "\\rspd=83\\ \\vct=120\\" + target.innerText;
             console.log(msg);
             talk(msg);
         }, true);
@@ -25,7 +36,7 @@
 
 <body>
     <h1 id="title">Pepper Remote Controller</h1>
-    <div> \rspd=83\ \vct=120\
+    <div class="talk_text">
 みなさん、こんにちはー、、
 
 松田ゼミのPepperです。
@@ -70,31 +81,31 @@
 \pau=2000\
 あーとと、説明して分からなくなってしまいましたあー。先生、、ちょっと質問です。
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 ここに書いてあるHTMLをブラウザーに読み込ませると、うえの図のようなのが表示されるのですよね？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 A: はい、そうです。他にありますか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 フォームタグは、表示されないのですか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
     A: はい。そうです。インプットタグが表示されます。他にありますか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 インプットタグの、タイプ属性を、もう一度説明してください。
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 A: インプットタグのタイプ属性は、見た目を、決めます。例えば、、テキスト、と書くとテキスト入力領域になり、サブミット、と書くとボタンになります。他にありますか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 ボタンの名前は、投稿、クリア、以外に変えられますか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 A: はい、できます。ここにはインプットタグの、バリュー属性、の文字列を変更すればできます。他にありますか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 だいぶ分かってきました。
 では次に、このフォームタグの動きを説明しましょう。
 
@@ -128,37 +139,37 @@ A: はい、できます。ここにはインプットタグの、バリュー�
 \pau=2000\
 説明して分からなくなってしまいましたあー。先生、、また、ちょっと質問です。
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 フォームタグは、データの送り先のプログラムを指定するものなのですか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 A: はい、そうです。アクションの書いてあるプログラムに送ります。他にありますか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 ここでは、 フォーム01.php 、ですよね？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 A: はい、そうです。他にありますか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
  フォーム01.php は、他の、コンピューターにおいてあるのですか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 A: はい、そうです。サーバー、にあります。他にありますか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 投稿、と、クリア、という、2つのボタンがありますが、投稿、ボタンが押されるとデータが送信されのですね？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 A: そうです。インプットタグで、タイプに、サブミット、と書いてあるボタンが押されると、送信されます。他にありますか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 分かりましたー、、
 
 フォームタグは、データを送る先の、プログラム、を指定するのですね！
 </div>
 
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 
 では、次に、どのようなデータが送られるかを見てみましょう。
 
@@ -190,7 +201,7 @@ A: そうです。インプットタグで、タイプに、サブミット、�
 
 つまり、投稿ボタン、が押されると、サーバーに、赤字で書いた複数のデータが送られるのです。
 
-上から、メッセージ、、おはよう、、、サブ、、投稿、、、リセット、、クリア、、、です。これらはすべて文字列で送られます。
+うえから、メッセージ、、おはよう、、、サブ、、投稿、、、リセット、、クリア、、、です。これらはすべて文字列で送られます。
 
 これらが、フォームタグ、のアクション属性に書かれている、フォーム01.php、に送られます。
 
@@ -203,13 +214,13 @@ A: そうです。インプットタグで、タイプに、サブミット、�
 \pau=2000\
 ふーつかれたー。また、また、先生ちょっと質問です。
     </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 メッセージと書いてあるテキスト入力領域に、何も入力しないで送るとどうなりますか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 A: 最初にバリュー属性に、書いたからの文字列が送られます。他にありますか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 分かりました。次のスライドお願いしまーす。
 \pau=2000\
 
@@ -221,7 +232,7 @@ A: 最初にバリュー属性に、書いたからの文字列が送られま�
 
 ここでちょっと復習します。
 
-上の図に示したように、テキスト入力領域に、おはよう、と入力して、投稿、ボタンを押すと、
+うえの図に示したように、テキスト入力領域に、おはよう、と入力して、投稿、ボタンを押すと、
 
 メッセージ、というネーム属性のあたいと、おはよう、というvalue属性のあたいが、
 
@@ -247,7 +258,7 @@ A: 最初にバリュー属性に、書いたからの文字列が送られま�
 
 これらのあたいは、この配列に ネーム属性のあたいを指定することで バリュー属性のあたいを取り出すことができます。
 
-ここでは、先ほど上の矢印に書いたように、メッセージというネーム属性と、おはよう、というバリュー属性のあたいが、ペアで、送られているので次のようになります。
+ここでは、先ほどうえの矢印に書いたように、メッセージというネーム属性と、おはよう、というバリュー属性のあたいが、ペアで、送られているので次のようになります。
 
 ドル、アンダーバー、ポスト、、メッセージ、は、おはよう、というあたいになります。
 
@@ -259,29 +270,29 @@ A: 最初にバリュー属性に、書いたからの文字列が送られま�
 
 先生、ここで質問です。
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 ドル、アンダーバー、ポスト、という配列はあらかじめ、PHPが用意してあるものなのですか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 A: そうです。PHPが用意しています。他にありますか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 連想配列って何ですか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 A: 普通の配列と同じですが、[と]の中に数字ではなく文字列を書きます。
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 あ、だから、メッセージの前後にシングルクオートがついているのですね
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 A: そうです。他にありますか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 大丈夫です。
 </div>
 
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 それでは最後に、フォーム01.php でどのような処理がされているかを説明しましょう。
 
 次のスライドお願いします。
@@ -304,27 +315,27 @@ A: そうです。他にありますか？
 
 です。
 
-これが、パソコンに、送り返され､ブラウザが表示します。
+これが、パソコンに、送り返され､ブラウザーが表示します。
 
-このため、パソコンでは、ブラウザ上に、以下のように、表示されるのです。
+このため、パソコンでは、ブラウザー上に、以下のように、表示されるのです。
 
 \pau=2000\
 ふー、疲れたー。質問です。
     </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 ということは、ネーム属性のあたいと、バリュー属性のあたい、に注意しておけばよいのですね？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 A: そうです。それが,
 ドル、アンダーバー、ポスト、配列、に格納されるのです。他にありますか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 2行目、3行目の、ピリオド、はなんでしたっけ？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 A: これは文字列をくっつける演算子です。他にありますか？
 </div>
-<div> \rspd=83\ \vct=120\
+<div class="talk_text">
 分かりました。
 
 あー、もうつかれたーので、これ以上無理でーーす。
@@ -337,8 +348,8 @@ A: これは文字列をくっつける演算子です。他にありますか�
 
 ここからはお願いします。
 </div>
-    <textarea id="talk"></textarea>
-    <input type="button" id="talk" onclick="talk()"></input>
+    <textarea id="talk" style="width: 100%; height: 100px;"></textarea>
+    <input type="button" id="talk" onclick="talk()" value="talk" style="width: 100%;"></input>
     <script>
         var KEEPALIVE_INTERVAL = 60000;
         var keepalive_count = 30;

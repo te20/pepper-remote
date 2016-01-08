@@ -22,6 +22,10 @@ module.exports = function remoteControl(server) {
         var connection = {};
 
         function send(socket, action, data) {
+            if (! socket) {
+                return;
+            }
+
             var msg = JSON.stringify({'action': action, 'data': data});
             var address = socket.upgradeReq.client.remoteAddress;
 
