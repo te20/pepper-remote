@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var pepperRemote = require('./routes/pepper-remote');
+var pepperController = require('./routes/pepper-controller');
 // var scoreDB = require('./models/scoreDB');
 
 var app = express();
@@ -24,6 +25,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/pepper-remote', pepperRemote);
+app.use('/pepper-controller', pepperController);
 
 
 // / catch 404 and forwarding to error handler

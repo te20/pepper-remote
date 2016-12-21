@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="refresh" content="60">
+    <title>
+      Pepper Remote Controller
+    </title>
+
+    <!-- <link href='http://fonts.googleapis.com/css?family=Indie+Flower' rel='stylesheet' type='text/css'> -->
+    <style>
+      .talk_text {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        border: solid;
+        border-width: 1px;
+        border-color: #d0d0d0;
+        box-shadow: 0 10px 6px -6px #777;
+        cursor: pointer;
+      }
+    </style>
+    <script>
+      /*
+      document.addEventListener('click', function(e) {
+        var target = e.srcElement || e.target;
+        var msg = "\\rspd=83\\ \\vct=120\\" + target.innerText;
+        console.log(msg);
+        talk(msg);
+      }, true);
+      */
+
+      function talk() {
+        var text = document.getElementById('talk');
+        console.log(text.value);
+        webSocket.send(JSON.stringify({
+          'action': 'robot_talk',
+          'data': '\\rspd=83\\ \\vct=120\\' + text.value
+      }));
+      }
+    </script>
+  </head>
+
+  <body>
+    <h1 id="title">Pepper Remote Controller</h1>
+    <textarea id="talk" style="width: 100%; height: 100px;"></textarea>
+    <input type="button" id="talk" onclick="talk()" value="talk" style="width: 100%;"></input>
+    <script>
+      var KEEPALIVE_INTERVAL = 60000;
+      // FIXME 使用しているかどうかにかかわらずkeepalive_countはダウンカウントされて、使用中でも
+      // タイムアウトしてしまう。
+      var keepalive_count = 30;
+
+      // WebSocketサーバーのURLを生成
+      var url = window.location;
+      if (url.host !== '') {
+        var ws_url = url.protocol === 'https:' ? 'wss:' : 'ws:' + '//' + url.host;
+      } else {
+        var ws_url = 'ws://shake.elasticbeanstalk.com/';
+      }
+      // var ws_url = 'ws://shake.elasticbeanstalk.com/';　// テスト用に強制的に書き換え
+      console.log('WebSocket Host: ' + ws_url);
+
+      webSocket = new WebSocket(ws_url);
+      webSocket.onopen = function() {
+        webSocket.send(JSON.stringify({
+          "action": "controllertoken",
+          "data": "none"
+        }));
+      };
+
+      webSocket.onmessage = function(e) { // サーバーからデータが届いた
+        var message = JSON.parse(e.data);
+
+        if (message.action === 'success_connection') {
+          console.log('success_connection');
+        } else {
+          console.log('Unknown message type: ', e.data);
+        }
+      };
+
+      setTimeout(function keepalive() {
+        if (keepalive_count-- > 0) {
+          webSocket.send(JSON.stringify({
+            type: 'iamalive',
+            value: 0
+          }));
+          setTimeout(keepalive, KEEPALIVE_INTERVAL);
+        }
+      }, KEEPALIVE_INTERVAL);
+    </script>
+  </body>
+</html>

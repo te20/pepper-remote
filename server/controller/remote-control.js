@@ -63,7 +63,7 @@ module.exports = function remoteControl(server) {
             case 'controllertoken':
                 send(ws, 'success_connection', 'none');
                 if (wsRobot) {
-                    send(ws, 'robot_connected', 'none');
+                    send(ws, 'controller_connected', 'none');
                 }
                 wsController = ws;
                 break;
@@ -72,10 +72,6 @@ module.exports = function remoteControl(server) {
                 break;
             case 'robot_talk':
                 send(wsRobot, message.action, message.data);
-                break;
-            case 'reset':
-                logger.info('Reset from ' + address);
-                reset();
                 break;
             case 'iamalive':
                 logger.info('Recieved alive message from ' + address);

@@ -352,6 +352,8 @@ A: これは文字列をくっつける演算子です。他にありますか�
     <input type="button" id="talk" onclick="talk()" value="talk" style="width: 100%;"></input>
     <script>
         var KEEPALIVE_INTERVAL = 60000;
+        // FIXME 使用しているかどうかにかかわらずkeepalive_countはダウンカウントされて、使用中でも
+        // タイムアウトしてしまう。
         var keepalive_count = 30;
 
         // WebSocketサーバーのURLを生成
